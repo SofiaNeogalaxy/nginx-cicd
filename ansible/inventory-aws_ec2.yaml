@@ -1,0 +1,19 @@
+---
+plugin: aws_ec2
+aws_profile: devopsrole # assumes the role in the ~/.aws/ config or credentials
+regions:
+  - us-east-1
+filters:
+  instance-state-name: running
+hostnames:
+  - ip-address
+  - dns-name
+keyed_groups:
+  - prefix: tag # prefix name to be used in group_vars dir
+    key: tags.Group # suffix name for file in group_vars dir same as value for Group from the instance tags
+# groups:
+#   tag_web: "'web' in tags.Group"
+#   nginx: "'nginx' in tags.Name"
+#   test: "'test' in tags.Name"
+compose:
+  ansible_host: public_dns_name

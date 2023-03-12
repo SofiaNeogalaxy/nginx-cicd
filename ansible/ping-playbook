@@ -1,0 +1,6 @@
+- name: ping all servers
+  hosts: ec2_servers
+
+  tasks:
+    - name: ping dynamic inventory
+      ping:

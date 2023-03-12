@@ -1,0 +1,79 @@
+---
+- name: Provision webservers
+  hosts: ec2_servers
+  become: true
+
+  tasks:
+    - name: Install docker dependecies
+      ansible.builtin.shell: |
+        sudo apt-get update -y
+        sudo killall apt-get
+        sudo rm /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get update -y
+        sudo apt-get install \
+          apt-transport-https \
+          ca-certificates \
+          gnupg \
+          software-properties-common \
+          lsb-release -y
+      args:
+        executable: /bin/bash
+      ignore_errors: true
+
+    - name: Create keyring directory
+      ansible.builtin.shell: |
+        sudo mkdir -p /etc/apt/keyrings
+      args:
+        executable: /bin/bash
+      ignore_errors: true
+
+    - name: Get docker gpg keys
+      ansible.builtin.apt_key:
+        url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+        state: present
+
+    - name: Add the repository to sources list
+      ansible.builtin.apt_repository:
+        repo: deb https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Install docker
+      ansible.builtin.shell: |
+        sudo apt-get update -y
+        sudo killall apt-get
+        sudo rm /var/lib/dpkg/lock-frontend
+        sudo dpkg --configure -a
+        sudo apt-get update -y
+        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
+        sudo usermod -aG docker ubuntu
+      args:
+        executable: /bin/bash
+
+    - name: Start docker service
+      ansible.builtin.service:
+        name: docker
+        state: started
+
+    - name: Pull docker image
+      ansible.builtin.shell: |
+        docker rmi kaokakelvin/nginx-image
+        docker pull kaokakelvin/nginx-image:latest
+      args:
+        executable: /bin/bash
+      ignore_errors: true
+
+    - name: Stop and remove present containers
+      ansible.builtin.shell: |
+        docker stop nginx-container
+        docker rm nginx-container
+      args:
+        executable: /bin/bash
+      ignore_errors: true
+    
+    - name: Run image
+      ansible.builtin.shell: |
+        docker run -dit --name nginx-container -p 8000:8000 -p 443:443 kaokakelvin/nginx-image:latest
+      args:
+        executable: /bin/bash
+      ignore_errors: true

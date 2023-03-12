@@ -1,0 +1,9 @@
+[tag_web]
+
+#[tag_test]
+
+[ec2_servers:children]
+tag_web
+#tag_test
+
+#edit according to tags.group of the aws_ec2 inventory (displayed by ansible-inventory)
