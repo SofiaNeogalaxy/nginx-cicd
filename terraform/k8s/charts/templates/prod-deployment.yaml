@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: {{.Values.nginx_site.name}}
+  labels:
+    app: {{.Values.nginx_site.labels.app}}
+    tier: {{.Values.nginx_site.labels.tier}}
+spec:
+  replicas: {{ .Values.nginx_site.replicas }}
+  selector:
+    matchLabels:
+      app: {{.Values.nginx_site.labels.app}}
+      tier: {{.Values.nginx_site.labels.tier}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.nginx_site.labels.app}}
+        tier: {{.Values.nginx_site.labels.tier}}
+    spec:
+      containers:
+      - name: {{.Values.nginx_site.name}}
+        image: {{ .Values.nginx_site.containers.image }}:{{ .Values.nginx_site.containers.tag }}      
+        ports:
+        - containerPort: {{ .Values.nginx_site.containers.containerPort }}
+        resources:
+          requests:
+            memory: {{ .Values.nginx_site.containers.resources.requests.memory }}
+            cpu: {{ .Values.nginx_site.containers.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.nginx_site.containers.resources.limits.memory }}
+            cpu: {{ .Values.nginx_site.containers.resources.limits.cpu }}
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.nginx_site.containers.containerPort }}
+          periodSeconds: {{ .Values.nginx_site.containers.probes.periodSeconds }}
+          timeoutSeconds: {{ .Values.nginx_site.containers.probes.timeoutSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.nginx_site.containers.probes.readinessProbe.path }}
+            port: {{ .Values.nginx_site.containers.containerPort }}
+          periodSeconds: {{ .Values.nginx_site.containers.probes.periodSeconds }}
+          timeoutSeconds: {{ .Values.nginx_site.containers.probes.timeoutSeconds }}
+        

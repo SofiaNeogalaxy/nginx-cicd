@@ -1,1 +1,14 @@
-api
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.nginx_site.name}}
+  labels:
+    app: {{.Values.nginx_site.labels.app}}
+    tier: {{.Values.nginx_site.labels.tier}}
+spec:
+  type: {{ .Values.nginx_site.service.type }}
+  ports:
+    - port: {{ .Values.nginx_site.containers.containerPort }}
+  selector:
+    app: {{.Values.nginx_site.labels.app}}
+    tier: {{.Values.nginx_site.labels.tier}}
