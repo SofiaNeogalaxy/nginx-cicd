@@ -1,0 +1,29 @@
+nginx_site:
+  name: nginx-site
+
+  labels:
+    app: nginx-site
+    tier: frontend
+  
+  replicas: 4
+
+  containers:
+    name: nginx-site
+    image: kaokakelvin/nginx-image
+    tag: latest       
+    containerPort: 8000
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "128m"
+      limits:
+        memory: "256Mi"
+        cpu: "256m"
+    probes:
+      readinessProbe:
+        path: /
+      periodSeconds: 5
+      timeoutSeconds: 1
+
+  service:
+    type: LoadBalancer
